@@ -65,8 +65,9 @@ async def welcome(client, message):
             await client.send_photo(chat_id=message.chat.id, photo=f, caption=f'Hello {name}! Welcome to the group.')
 
 @app.on_message(filters.new_chat_members)
-def handle_new_chat_members(client, message):
-    welcome(client, message)
+async def handle_new_chat_members(client, message):
+    await welcome(client, message)
+
 
 @app.on_message(filters.command('start'))
 def start(client, message):
