@@ -38,44 +38,47 @@ def on_new_member(client, message):
         chat_title = message.chat.title
         
         # Get the user who just joined
-    user = message.new_chat_members[0]
-    
-    # Generate the welcome message
-    message, photo_url = generate_welcome_message(user, chat_title)
-    
-    # Download the user's profile picture
-    response = requests.get(photo_url)
-    photo = Image.open(BytesIO(response.content))
-    
-    # Load the image template and create a draw object
-    template = Image.open("https://i.postimg.cc/Hsggt1hn/photo-2023-03-20-01-40-46-7212352388177380352.png")
-    draw = ImageDraw.Draw(template)
-    
-    # Define the font and font size
-    font = ImageFont.truetype("arial.ttf", 30)
-    
-    # Draw the welcome message
-    draw.text((50, 50), message, font=font, fill="black")
-    
-    # Resize the user's profile picture
-    photo = photo.resize((200, 200))
-    
-    # Create a circular mask for the profile picture
-    mask = Image.new("L", photo.size, 0)
-    draw = ImageDraw.Draw(mask)
-    draw.ellipse((0, 0) + photo.size, fill=255)
-    
-    # Apply the circular mask to the profile picture
-    photo.putalpha(mask)
-    
-    # Paste the profile picture into the template
-    template.paste(photo, (500, 50), photo)
-    
-    # Convert the image to bytes and send it to the chat
-    img_bytes = BytesIO()
-    template.save(img_bytes, format="PNG")
-    img_bytes.seek(0)
-    client.send_photo(chat_id, img_bytes, caption=message, parse_mode="HTML")
+        user = message.new_chat_members[0]
+        
+        # Generate the welcome message
+        message, photo_url = generate_welcome_message(user, chat_title)
+        
+        # Download the user's profile picture
+        response = requests.get(photo_url)
+        photo = Image.open(BytesIO(response.content))
+        
+        # Load the image template and create a draw object
+        template = Image.open("https://i.postimg.cc/Hsggt1hn/photo-2023-03-20-01-40-46-7212352388177380352.png")
+        draw = ImageDraw.Draw(template)
+        
+        # Define the font and font size
+        font = ImageFont.truetype("arial.ttf", 30)
+        
+        # Draw the welcome message
+        draw.text((50, 50), message, font=font, fill="black")
+        
+        # Resize the user's profile picture
+        photo = photo.resize((200, 200))
+        
+        # Create a circular mask for the profile picture
+        mask = Image.new("L", photo.size, 0)
+        draw = ImageDraw.Draw(mask)
+        draw.ellipse((0, 0) + photo.size, fill=255)
+        
+        # Apply the circular mask to the profile picture
+        photo.putalpha(mask)
+        
+        # Paste the profile picture into the template
+        template.paste(photo, (500, 50), photo)
+        
+        # Convert the image to bytes and send it to the chat
+        img_bytes = BytesIO()
+        template.save(img_bytes, format="PNG")
+        img_bytes.seek(0)
+app.send_photo(chat_id, photo=img_bytes, caption=message)
+
+# Register the function to handle new users joining the group
+app.add_handler(pyrogram.handlers.MessageHandler(on_new_member, pyrogram.filters.new_chat_members))
 
 # Start the bot
-app.run() 
+app.run()
