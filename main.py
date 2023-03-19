@@ -29,12 +29,18 @@ def welcome(client, message):
         # Open the image and add the text
         draw = ImageDraw.Draw(image)
 
-        # Add the user's profile picture on the right side
-        pfp_response = requests.get(user.photo.big_file_id)
-        with open('pfp.jpg', 'wb') as f:
-            f.write(pfp_response.content)
-        pfp = Image.open('pfp.jpg')
-        image.paste(pfp, (800, 100))
+        # Add the user's profile picture on the right side if available
+        if user.photo is not None:
+            pfp_response = requests.get(user.photo.big_file_id)
+            with open('pfp.jpg', 'wb') as f:
+                f.write(pfp_response.content)
+            pfp = Image.open('pfp.jpg')
+            image.paste(pfp, (800, 100))
+        else:
+            # If the user doesn't have a profile picture, use a default image
+            default_pfp_url = 'https://i.postimg.cc/Hsggt1hn/photo-2023-03-20-01-40-46-7212352388177380352.png'
+            with Image.open(requests.get(default_pfp_url, stream=True).raw) as default_pfp:
+                image.paste(default_pfp, (800, 100))
 
         # Add the text on the left side
         draw.text((100, 100), f'Welcome {name}!', fill='white', font=font)
