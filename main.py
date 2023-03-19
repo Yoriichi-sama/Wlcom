@@ -1,8 +1,9 @@
 import os
 import requests
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageFont
 import pyrogram
 from pyrogram import Client, filters
+from pyrogram.raw.functions.photos import GetUserPhotos
 
 
 API_ID = 15849735 # Your API ID
@@ -13,7 +14,7 @@ BOT_TOKEN = '6145559264:AAEkUH_znhpaTdkbnndwP1Vy2ppv-C9Zf4o'
 app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 # Define the font for the welcome message
-font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf', 60)
+font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf', 40)
 
 def welcome(client, message):
     user = message.new_chat_members[0]
@@ -22,36 +23,26 @@ def welcome(client, message):
     user_id = user.id
     group_name = message.chat.title # get the name of the group where the bot is added
 
+    # Get the user's profile picture
+    profile_photos = app.send(GetUserPhotos(user_id=user_id, offset=0, max_id=0, limit=1))
+    if not profile_photos.photos:
+        profile_pic_url = None
+    else:
+        profile_pic_url = client.get_download_location(profile_photos.photos[0]).download_url
+
     # Download the welcome image
     image_url = 'https://i.postimg.cc/Hsggt1hn/photo-2023-03-20-01-40-46-7212352388177380352.png'
     response = requests.get(image_url)
     with Image.open(requests.get(image_url, stream=True).raw) as image:
-        # Resize the image and create a white canvas to add the profile picture
-        image = image.resize((800, 600))
-        canvas = Image.new('RGB', (200, 200), 'white')
-
-        # Add the profile picture to the canvas
-        if user.photo:
-            profile_pic_url = client.get_profile_photos(user.id)[0].file_id
-            response = requests.get(profile_pic_url)
-            with Image.open(requests.get(profile_pic_url, stream=True).raw) as profile_pic:
-                profile_pic = profile_pic.convert('RGB')
-                profile_pic = profile_pic.resize((200, 200))
-                mask = Image.new('L', (200, 200), 0)
-                draw_mask = ImageDraw.Draw(mask)
-                draw_mask.ellipse((0, 0, 200, 200), fill=255)
-                mask = ImageOps.invert(mask)
-                canvas.paste(profile_pic, (0, 0), mask)
-
-        # Add the text to the image
+        # Open the image and add the text
         draw = ImageDraw.Draw(image)
-        draw.text((50, 250), f'Welcome {name}!', fill='white', font=font)
-        draw.text((50, 350), f'Username: {username}', fill='white', font=font)
-        draw.text((50, 450), f'ID: {user_id}', fill='white', font=font)
-        draw.text((50, 550), f'Greetings from {group_name}!', fill='white', font=font)
-
-        # Add the profile picture to the image
-        image.paste(canvas, (600, 50))
+        if profile_pic_url:
+            profile_pic = Image.open(requests.get(profile_pic_url, stream=True).raw).convert("RGBA").resize((200, 200))
+            image.paste(profile_pic, (600, 200), profile_pic)
+        draw.text((100, 100), f'Welcome {name}!', fill='white', font=font)
+        draw.text((100, 200), f'Username: {username}', fill='white', font=font)
+        draw.text((100, 300), f'ID: {user_id}', fill='white', font=font)
+        draw.text((100, 400), f'Greetings from {group_name}!', fill='white', font=font) # add the group name to the welcome message
 
         # Save the modified image
         image.save('welcome_modified.jpg')
@@ -62,12 +53,12 @@ def welcome(client, message):
 
 
 @app.on_message(filters.new_chat_members)
-def handle_new_chat_members(client, message):	
-    welcome(client, message)	
+def handle_new_chat_members(client, message):
+    welcome(client, message)
 
-@app.on_message(filters.command('start'))	
-def start(client, message):	
-    client.send_message(chat_id=message.chat.id, text="Hello! I'm a welcome bot.")	
+@app.on_message(filters.command('start'))
+def start(client, message):
+    client.send_message(chat_id=message.chat.id, text="Hello! I'm a welcome bot.")
 
-# Start the client	
+# Start the client
 app.run()
