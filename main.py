@@ -24,7 +24,7 @@ async def welcome(client, message):
     group_name = message.chat.title # get the name of the group where the bot is added
 
     # Get the user's profile picture
-    profile_photos = await app.get_user_photos(user_id=user_id, offset=0, max_id=0, limit=1)
+    profile_photos = await app.get_profile_photos(user_id=user_id, offset=0, max_id=0, limit=1)
     if profile_photos.total_count > 0:
         profile_pic_url = profile_photos.photos[0][-1].file_id
     else:
