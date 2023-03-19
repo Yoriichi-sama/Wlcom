@@ -24,7 +24,7 @@ async def welcome(client, message):
     group_name = message.chat.title # get the name of the group where the bot is added
 
     # Get the user's profile picture
-    profile_photos = await app.get_user_profile_photos(user_id=user_id, limit=1)
+    profile_photos = await app.get_user_photos(user_id=user_id, offset=0, max_id=0, limit=1)
     if profile_photos.total_count > 0:
         profile_pic_url = profile_photos.photos[0][-1].file_id
     else:
@@ -64,10 +64,9 @@ async def welcome(client, message):
         with open('welcome_modified.jpg', 'rb') as f:
             await client.send_photo(chat_id=message.chat.id, photo=f, caption=f'Hello {name}! Welcome to the group.')
 
-@app.on_message(filters.new_chat_members)
+@client.on_message(Filters.new_chat_members)
 async def handle_new_chat_members(client, message):
     await welcome(client, message)
-
 
 @app.on_message(filters.command('start'))
 def start(client, message):
