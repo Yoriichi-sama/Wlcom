@@ -3,7 +3,7 @@ import requests
 from PIL import Image, ImageDraw, ImageFont
 import pyrogram
 from pyrogram import Client, filters
-from pyrogram.raw.functions.photos import GetUserPhotos
+from pyrogram.types import InputFile
 
 
 API_ID = 15849735 # Your API ID
@@ -24,7 +24,7 @@ async def welcome(client, message):
     group_name = message.chat.title # get the name of the group where the bot is added
 
     # Get the user's profile picture
-    profile_photos = await app.get_profile_photos(user_id=user_id, offset=0, max_id=0, limit=1)
+    profile_photos = await app.get_user_profile_photos(user_id)
     if profile_photos.total_count > 0:
         profile_pic_url = profile_photos.photos[0][-1].file_id
     else:
@@ -44,8 +44,8 @@ async def welcome(client, message):
         # Add the user's profile picture to the welcome image
         if profile_pic_url is not None:
             # Download the profile picture
-            response = requests.get(profile_pic_url)
-            with Image.open(requests.get(profile_pic_url, stream=True).raw) as profile_pic:
+            file_path = await client.download_media(profile_pic_url)
+            with Image.open(file_path) as profile_pic:
                 # Resize the profile picture to a small circular image
                 size = (150, 150)
                 mask = Image.new('L', size, 0)
@@ -62,7 +62,7 @@ async def welcome(client, message):
 
         # Send the modified image as a reply to the welcome message
         with open('welcome_modified.jpg', 'rb') as f:
-            await client.send_photo(chat_id=message.chat.id, photo=f, caption=f'Hello {name}! Welcome to the group.')
+            await client.send_photo(chat_id=message.chat.id, photo=InputFile(f), caption=f'Hello {name}! Welcome to the group
 
 @app.on_message(filters.new_chat_members)
 async def handle_new_chat_members(client, message):
