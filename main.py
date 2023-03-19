@@ -31,7 +31,7 @@ def welcome(client, message):
 
         # Add the user's profile picture on the right side if available
         if user.photo is not None:
-            pfp_response = requests.get(user.photo.big_file_id)
+            pfp_response = requests.get('https://' + user.photo.big_file_id)
             with open('pfp.jpg', 'wb') as f:
                 f.write(pfp_response.content)
             pfp = Image.open('pfp.jpg')
