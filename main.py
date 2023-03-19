@@ -62,7 +62,7 @@ async def welcome(client, message):
 
         # Send the modified image as a reply to the welcome message
         with open('welcome_modified.jpg', 'rb') as f:
-            await client.send_photo(chat_id=message.chat.id, photo=InputFile(f), caption=f'Hello {name}! Welcome to the group
+            await client.send_photo(chat_id=message.chat.id, photo=InputFile(f), caption=f'Hello {name}! Welcome to the group.')
 
 @app.on_message(filters.new_chat_members)
 async def handle_new_chat_members(client, message):
