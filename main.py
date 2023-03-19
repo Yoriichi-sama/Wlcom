@@ -3,8 +3,7 @@ import requests
 from PIL import Image, ImageDraw, ImageFont
 import pyrogram
 from pyrogram import Client, filters
-from pyrogram.types import InputFile
-
+from pyrogram.types.input_file import InputFile
 
 API_ID = 15849735 # Your API ID
 API_HASH = 'b8105dc4c17419dfd4165ecf1d0bc100' # Your API Hash
