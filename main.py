@@ -31,13 +31,13 @@ def generate_welcome_message(user, chat_title):
     return (message, photo_url)
 
 # Define the function to handle new users joining the group
-@app.on_message(pyrogram.filters.new_chat_members & pyrogram.filters.chat_type.groups)
 def on_new_member(client, message):
-    # Get the chat ID and title
-    chat_id = message.chat.id
-    chat_title = message.chat.title
-    
-    # Get the user who just joined
+    if message.new_chat_members:
+        # Get the chat ID and title
+        chat_id = message.chat.id
+        chat_title = message.chat.title
+        
+        # Get the user who just joined
     user = message.new_chat_members[0]
     
     # Generate the welcome message
