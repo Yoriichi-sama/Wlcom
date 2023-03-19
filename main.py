@@ -1,68 +1,83 @@
-import os
-import requests
-from PIL import Image, ImageDraw, ImageFont
 import pyrogram
-from pyrogram import Client, filters
+from PIL import Image, ImageDraw, ImageFont
+import requests
+from io import BytesIO
 
+# Set up the bot
+app = pyrogram.Client(
+    "my_bot",
+    api_id=15849735,
+    api_hash="b8105dc4c17419dfd4165ecf1d0bc100",
+    bot_token="6145559264:AAFufTIozcyIRZPf9bRWCvky2_NhbbjWTKU"
+)
 
-API_ID = 15849735 # Your API ID
-API_HASH = 'b8105dc4c17419dfd4165ecf1d0bc100' # Your API Hash
-BOT_TOKEN = '6145559264:AAFufTIozcyIRZPf9bRWCvky2_NhbbjWTKU'
+# Define the function to generate the welcome message
+def generate_welcome_message(user):
+    # Get the user's profile picture
+    photo = user.photo
+    if photo is None:
+        # Use a default profile picture if the user doesn't have one
+        photo_url = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+    else:
+        # Get the URL of the user's profile picture
+        photo_url = app.get_download_url(photo.big_file_id)
+    
+    # Generate the welcome message
+    message = f"<b>Welcome to {app.get_chat(user.chat_id).title}!</b>\n"
+    message += f"We're glad to have you here, {user.first_name} ({user.username})!\n\n"
+    message += f"Your user ID is <code>{user.id}</code>."
+    
+    # Return the message and profile picture URL
+    return (message, photo_url)
 
-# Create a Pyrogram client
-app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
-
-# Define the font for the welcome message
-font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf', 40)
-
-def welcome(client, message):
-    user = message.new_chat_members[0]
-    name = user.first_name
-    username = user.username
-    user_id = user.id
-    group_name = message.chat.title # get the name of the group where the bot is added
-
-    # Download the welcome image
-    image_url = 'https://i.postimg.cc/Hsggt1hn/photo-2023-03-20-01-40-46-7212352388177380352.png'
-    response = requests.get(image_url)
-    with Image.open(requests.get(image_url, stream=True).raw) as image:
-        # Open the image and add the text
-        draw = ImageDraw.Draw(image)
-
-        # Add the user's profile picture on the right side if available
-        if user.photo is not None:
-            pfp_response = requests.get('https://' + user.photo.big_file_id)
-            with open('pfp.jpg', 'wb') as f:
-                f.write(pfp_response.content)
-            pfp = Image.open('pfp.jpg')
-            image.paste(pfp, (800, 100))
-        else:
-            # If the user doesn't have a profile picture, use a default image
-            default_pfp_url = 'https://i.postimg.cc/Hsggt1hn/photo-2023-03-20-01-40-46-7212352388177380352.png'
-            with Image.open(requests.get(default_pfp_url, stream=True).raw) as default_pfp:
-                image.paste(default_pfp, (800, 100))
-
-        # Add the text on the left side
-        draw.text((100, 100), f'Welcome {name}!', fill='white', font=font)
-        draw.text((100, 200), f'Username: {username}', fill='white', font=font)
-        draw.text((100, 300), f'ID: {user_id}', fill='white', font=font)
-        draw.text((100, 400), f'Greetings from {group_name}!', fill='white', font=font) # add the group name to the welcome message
-
-        # Save the modified image
-        image.save('welcome_modified.jpg')
-
-        # Send the modified image as a reply to the welcome message
-        with open('welcome_modified.jpg', 'rb') as f:
-            client.send_photo(chat_id=message.chat.id, photo=f, caption=f'Hello {name}! Welcome to the group.')
-
-
-@app.on_message(filters.new_chat_members)
-def handle_new_chat_members(client, message):
-    welcome(client, message)
-
-@app.on_message(filters.command('start'))
-def start(client, message):
-    client.send_message(chat_id=message.chat.id, text="Hello! I'm a welcome bot.")
-
-# Start the client
-app.run()
+# Define the function to handle new users joining the group
+def on_member_join(client, update, chat_id):
+    # Get the user who just joined
+    user = update.new_chat_members[0]
+    
+    # Generate the welcome message
+    message, photo_url = generate_welcome_message(user)
+    
+    # Download the user's profile picture
+    response = requests.get(photo_url)
+    photo = Image.open(BytesIO(response.content))
+    
+    # Load the image template and create a draw object
+    template = Image.open("welcome_template.png")
+    draw = ImageDraw.Draw(template)
+    
+    # Define the font and font size
+    font = ImageFont.truetype("arial.ttf", 30)
+    
+    # Draw the welcome message
+    draw.text((50, 50), message, font=font, fill="black")
+    
+    # Resize the user's profile picture
+    photo = photo.resize((200, 200))
+    
+    # Create a circular mask for the profile picture
+    mask = Image.new("L", photo.size, 0)
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse((0, 0) + photo.size, fill=255)
+    
+    # Apply the circular mask to the profile picture
+    photo.putalpha(mask)
+    
+    # Paste the profile picture into the template
+    template.paste(photo, (500, 50), photo)
+    
+    # Convert the image to bytes and send it to the chat
+    img_bytes = BytesIO()
+    template.save(img_bytes, format="PNG")
+    img_bytes.seek(0)
+    client.send_photo(chat_id, img_bytes, caption=message, parse_mode="HTML")
+    
+# Start the bot and set up the on_member_join handler
+with app:
+    @app.on_chat_member_join()
+    def handle_member_join(client, update):
+        chat_id = update.chat.id
+        on_member_join(client, update, chat_id)
+    
+    # Run the bot
+    app.run()
