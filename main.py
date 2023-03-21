@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 import requests
 from io import BytesIO
 
@@ -11,13 +11,14 @@ bot_token = "6145559264:AAEkUH_znhpaTdkbnndwP1Vy2ppv-C9Zf4o"
 bot = Client("my_bot", api_id, api_hash, bot_token=bot_token)
 
 # Define the welcome message and image
-def welcome_message(user):
+async def welcome_message(user):
     name = user.first_name
     user_id = user.id
     # Get the user's profile picture, or use a default image if the user doesn't have one
     if user.photo:
         photo_url = user.photo.big_file_id
-        photo = bot.get_file(photo_url).download()
+        file = await bot.get_file(photo_url)
+        photo = await file.download()
     else:
         photo = requests.get('https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png').content
     
@@ -48,18 +49,18 @@ def welcome_message(user):
     
     # Save the image
     img.save('welcome.png')
-    return 'Welcome {name}!'.format(name=name)
+    return f'Welcome {name}!'
 
 # Handle new users joining the group
 @bot.on_message(filters.new_chat_members)
-def welcome_new_members(client, message):
+async def welcome_new_members(client, message):
     for user in message.new_chat_members:
         # Send the welcome message and image to the group chat
-        message.reply_photo('welcome.png', caption=welcome_message(user))
+        await message.reply_photo('welcome.png', caption=await welcome_message(user))
 
 # Handle /start command in PM
 @bot.on_message(filters.private & filters.command(['start']))
-def start_command(client, message):
-    message.reply_text('Hi there! I am a welcome bot. I will welcome any new users to the group with a personalized message and image.')
+async def start_command(client, message):
+    await message.reply_text('Hi there! I am a welcome bot. I will welcome any new users to the group with a personalized message and image.')
 
 bot.run()
