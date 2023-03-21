@@ -23,10 +23,11 @@ async def welcome_message(user):
         photo = requests.get('https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png').content
     
     # Set up the image
-    img = Image.new('RGB', (600, 200), color = 'white')
-    draw = ImageDraw.Draw(img)
-    font_name = ImageFont.truetype('arial.ttf', 32, bold=True)
-    font_id = ImageFont.truetype('monospace.ttf', 16)
+    bg_image = Image.open("https://graph.org/file/f9052c7d2528606468acf.jpg")
+    bg_image = bg_image.resize((600, 200))
+    img = Image.new('RGB', (600, 200), color='white')
+    img.paste(bg_image, (0, 0))
+
     
     # Draw the user's name on the left side of the image
     name_x = 20
