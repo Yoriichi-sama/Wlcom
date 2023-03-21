@@ -64,3 +64,5 @@ async def welcome_new_members(client, message):
 async def start_command(client, message):
     await message.reply_text('Hi there! I am a welcome bot. I will welcome any new users to the group with a personalized message and image.')
 
+    # Run the client
+app.run()
