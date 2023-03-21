@@ -17,22 +17,26 @@ async def welcome_message(user):
     # Get the user's profile picture, or use a default image if the user doesn't have one
     if user.photo:
         photo_url = user.photo.big_file_id
-        file = await bot.get_file(photo_url)
-        photo = await file.download()
+        async for file in bot.get_files(photo_url):
+            photo = await file.download()
     else:
         photo = requests.get('https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png').content
     
     # Set up the image
-    background = Image.open('https://graph.org/file/f9052c7d2528606468acf.jpg')
-    img = background.resize((600, 200))
+    img = Image.new('RGB', (600, 200), color = 'white')
     draw = ImageDraw.Draw(img)
     font_name = ImageFont.truetype('arial.ttf', 32, bold=True)
     font_id = ImageFont.truetype('monospace.ttf', 16)
     
+    # Load the background image
+    bg_image = Image.open('https://graph.org/file/f9052c7d2528606468acf.jpg')
+    bg_image = bg_image.resize((600, 200))
+    img.paste(bg_image, (0, 0))
+    
     # Draw the user's name on the left side of the image
     name_x = 20
     name_y = 60
-    draw.text((name_x, name_y), name, font=font_name, fill=(0, 0, 0))
+    draw.text((name_x, name_y), name, font=font_name, fill=(255, 255, 255))
     
     # Draw the user's profile picture on the right side of the image
     photo_size = (80, 80)
@@ -46,11 +50,12 @@ async def welcome_message(user):
     # Draw the user's ID below the profile picture
     id_x = 500
     id_y = 150
-    draw.text((id_x, id_y), f"ID: {user_id}", font=font_id, fill=(0, 0, 0))
+    draw.text((id_x, id_y), f"ID: {user_id}", font=font_id, fill=(255, 255, 255))
     
     # Save the image
     img.save('welcome.png')
-    return f'Welcome {name}!'
+    return f"Welcome {name}!"
+
 
 # Handle new users joining the group
 @bot.on_message(filters.new_chat_members)
