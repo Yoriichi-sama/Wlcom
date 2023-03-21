@@ -23,11 +23,11 @@ async def welcome_message(user):
         photo = requests.get('https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png').content
     
     # Set up the image
-    bg_image = Image.open("https://graph.org/file/f9052c7d2528606468acf.jpg")
-    bg_image = bg_image.resize((600, 200))
-    img = Image.new('RGB', (600, 200), color='white')
-    img.paste(bg_image, (0, 0))
-
+    background = Image.open('https://graph.org/file/f9052c7d2528606468acf.jpg')
+    img = background.resize((600, 200))
+    draw = ImageDraw.Draw(img)
+    font_name = ImageFont.truetype('arial.ttf', 32, bold=True)
+    font_id = ImageFont.truetype('monospace.ttf', 16)
     
     # Draw the user's name on the left side of the image
     name_x = 20
@@ -64,4 +64,3 @@ async def welcome_new_members(client, message):
 async def start_command(client, message):
     await message.reply_text('Hi there! I am a welcome bot. I will welcome any new users to the group with a personalized message and image.')
 
-bot.run()
