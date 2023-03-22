@@ -16,7 +16,7 @@ bot = Client("my_bot", api_id, api_hash, bot_token=bot_token)
 async def welcome_message(user: User) -> str:
     # Get the user's profile picture and convert it to a round shape
     photo_url = user.photo.big_file_id if user.photo else "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
-    photo_binary = BytesIO(requests.get(photo_url).content)
+    photo_binary = BytesIO(requests.get(https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png).content)
     profile_pic = Image.open(photo_binary)
     mask = Image.new("L", profile_pic.size, 0)
     draw = ImageDraw.Draw(mask)
