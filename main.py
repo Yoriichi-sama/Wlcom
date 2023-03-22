@@ -32,7 +32,7 @@ async def welcome_message(user: User) -> str:
     # Create a new image with the welcome message and profile picture
     canvas = Image.new("RGBA", (800, 200), (255, 255, 255, 255))
     canvas.paste(profile_pic, (0, 0), profile_pic)
-    font = ImageFont.truetype("arial.ttf", 30)
+    font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf", 30)
     draw = ImageDraw.Draw(canvas)
     draw.text((200, 40), message, font=font, fill=(0, 0, 0, 255))
 
