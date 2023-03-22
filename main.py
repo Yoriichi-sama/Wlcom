@@ -9,7 +9,7 @@ app = Client("my_bot")
 # Function to create welcome image
 def create_welcome_image(name, photo_url, user_id):
     # Open image file
-    img = Image.open("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png")
+    img = Image.open("https://i.postimg.cc/0QhvZmHt/Collage-Maker-22-Mar-2023-06-22-PM-4845.jpg")
 
     # Set font for name and user ID
     name_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size=25)
