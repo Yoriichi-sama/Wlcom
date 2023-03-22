@@ -1,5 +1,6 @@
 import os
 import urllib.request
+from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from pyrogram import Client, filters
 from pyrogram.types import Message
