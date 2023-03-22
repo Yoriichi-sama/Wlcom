@@ -1,66 +1,76 @@
-from pyrogram import Client, filters
-from pyrogram.types import User
+import os
+import urllib.request
 from PIL import Image, ImageDraw, ImageFont
-import requests
-from io import BytesIO
+from pyrogram import Client, filters
+from pyrogram.types import Message
 
-# Set your API credentials
-api_id = 15849735
-api_hash = 'Yb8105dc4c17419dfd4165ecf1d0bc100'
-bot_token = '6145559264:AAEkUH_znhpaTdkbnndwP1Vy2ppv-C9Zf4o'
+app = Client("my_bot")
 
-# Create a new Pyrogram client
-bot = Client("my_bot", api_id, api_hash, bot_token=bot_token)
+# Function to create welcome image
+def create_welcome_image(name, photo_url, user_id):
+    # Open image file
+    img = Image.open("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png")
 
-# Function to generate the welcome message
-async def welcome_message(user: User) -> str:
-    # Get the user's profile picture and convert it to a round shape
-    photo_url = user.photo.big_file_id if user.photo else "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
-    photo_url = "https://" + photo_url if not photo_url.startswith("http") else photo_url
-    photo_binary = BytesIO(requests.get(photo_url).content)
-    profile_pic = Image.open(photo_binary)
-    mask = Image.new("L", profile_pic.size, 0)
-    draw = ImageDraw.Draw(mask)
-    draw.ellipse((0, 0) + profile_pic.size, fill=255)
-    profile_pic.putalpha(mask)
+    # Set font for name and user ID
+    name_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size=25)
+    id_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size=18)
 
-    # Generate the welcome message with user's name, id, and profile picture
-    message = f"Welcome {user.mention}!\n"
-    message += f"\n\n"
+    # Set text for name and user ID
+    name_text = f"Welcome, {name}!"
+    id_text = f"User ID: {user_id}"
 
-    # Add the user's name in bold font on the left side of the profile picture
-    font_name = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 35)
-    draw = ImageDraw.Draw(profile_pic)
-    draw.text((profile_pic.width + 20, 30), user.first_name, font=font_name, fill=(0, 0, 0, 255))
+    # Draw text on image
+    draw = ImageDraw.Draw(img)
+    draw.text((175, 70), name_text, font=name_font, fill=(0, 0, 0))
+    draw.text((175, 110), id_text, font=id_font, fill=(0, 0, 0))
 
-    # Add the user's id below the profile picture
-    font_id = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 20)
-    draw.text((profile_pic.width + 20, 85), f"ID: {user.id}", font=font_id, fill=(0, 0, 0, 255))
+    # Download user photo and paste on image
+    try:
+        with urllib.request.urlopen(photo_url) as url:
+            user_photo = Image.open(url)
+            user_photo = user_photo.resize((80, 80))
+            img.paste(user_photo, (60, 50))
+    except:
+        with urllib.request.urlopen("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png") as url:
+            user_photo = Image.open(url)
+            user_photo = user_photo.resize((80, 80))
+            img.paste(user_photo, (60, 50))
 
-    # Create a new image with the welcome message and profile picture
-    canvas = Image.new("RGBA", (profile_pic.width + 320, profile_pic.height), (255, 255, 255, 255))
-    canvas.paste(profile_pic, (0, 0), profile_pic)
-    font_msg = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf", 30)
-    draw = ImageDraw.Draw(canvas)
-    draw.text((profile_pic.width + 20, 140), message, font=font_msg, fill=(0, 0, 0, 255))
+    # Save image
+    img.save("welcome.png")
 
-    # Save the image to a file
-    canvas.save("welcome.png")
+# Function to handle new member joining group
+@app.on_message(filters.group & filters.new_chat_members)
+async def welcome(bot, message):
+    # Loop through new members
+    for member in message.new_chat_members:
+        # Get user details
+        name = member.first_name
+        if member.last_name:
+            name += f" {member.last_name}"
+        user_id = member.id
+        photo_url = member.photo.big_file_id if member.photo else None
 
-    # Return the welcome message
-    return message
+        # Create welcome image
+        create_welcome_image(name, photo_url, user_id)
 
+        # Send image and message
+        await bot.send_photo(
+            chat_id=message.chat.id,
+            photo="welcome.png",
+            caption=f"Hello @{member.username}! Welcome to the group.",
+        )
 
-# Handler for new member joined event
-@bot.on_message(filters.new_chat_members)
-async def welcome_new_members(client, message):
-    for user in message.new_chat_members:
-        # Generate the welcome message and send it with the image
-        await message.reply_photo(
-    await client.download_media(user.photo.big_file_id) if user.photo else "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png",
-    caption=await welcome_message(user)
-)
+        # Delete image file
+        os.remove("welcome.png")
+        
+@app.on_message(filters.new_chat_members)
+def handle_new_chat_members(client, message):
+    welcome(client, message)
 
-
-# Start the bot
-bot.run()
+@app.on_message(filters.command('start'))
+def start(client, message):
+    client.send_message(chat_id=message.chat.id, text="Hello! I'm a welcome bot.")
+    
+# Start bot
+app.run()
