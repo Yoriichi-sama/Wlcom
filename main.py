@@ -49,8 +49,7 @@ async def welcome_new_members(client, message):
         # Generate the welcome message and send it with the image
         await message.reply_photo(
     await client.download_media(user.photo.big_file_id) if user.photo else "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png",
-    caption=await welcome_message(user),
-    parse_mode="None"
+    caption=await welcome_message(user)
 )
 
 
