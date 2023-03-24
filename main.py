@@ -70,19 +70,20 @@ def generate_welcome_image(name: str, user_id: int, pfp_url: str) -> io.BytesIO:
 @app.on_message(filters.group & filters.new_chat_members)
 async def handle_new_chat_members(client: Client, message: Message):
     # Iterate over the new members in the message
-for member in message.new_chat_members:
-    # Get the member's name, ID, and profile image URL (if available)
-    name = member.first_name + " " + member.last_name if member.last_name else member.first_name
-    user_id = member.id
-    pfp_url = None
-    if member.photo:
-        pfp_url = member.photo.big_file_id
+    for member in message.new_chat_members:
+        # Get the member's name, ID, and profile image URL (if available)
+        name = member.first_name + " " + member.last_name if member.last_name else member.first_name
+        user_id = member.id
+        pfp_url = None
+        if member.photo:
+            pfp_url = member.photo.big_file_id
 
-    # Generate the welcome image
-    image_bytes = generate_welcome_image(name, user_id, pfp_url)
+        # Generate the welcome image
+        image_bytes = generate_welcome_image(name, user_id, pfp_url)
 
-    # Reply to the new member with the welcome message and image
-    await message.reply_photo(image_bytes, caption=WELCOME_MESSAGE.format(f"@{member.username}" if member.username else name))
+        # Reply to the new member with the welcome message and image
+        await message.reply_photo(image_bytes, caption=WELCOME_MESSAGE.format(f"@{member.username}" if member.username else name))
+
 
 # Define a function to handle the "/start" command in private messages
 @app.on_message(filters.private & filters.command("start"))
