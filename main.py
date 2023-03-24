@@ -1,84 +1,94 @@
-import os
-import urllib.request
-from io import BytesIO
-from PIL import Image, ImageDraw, ImageFont
 from pyrogram import Client, filters
 from pyrogram.types import Message
+import requests
+from PIL import Image, ImageDraw, ImageFont
+import io
 
-app = Client("my_bot")
+# Initialize your Pyrogram client with your API ID, API hash, and bot token
+app = Client(
+    "my_bot_token",
+    api_id=16844842,
+    api_hash="f6b0ceec5535804be7a56ac71d08a5d4",
+    bot_token="6145559264:AAFufTIozcyIRZPf9bRWCvky2_NhbbjWTKU",
+)
 
-# Function to create welcome image
-def create_welcome_image(name, photo_url, user_id):
-    # Download welcome image
-    welcome_url = "https://i.postimg.cc/0QhvZmHt/Collage-Maker-22-Mar-2023-06-22-PM-4845.jpg"
-    welcome_file, _ = urllib.request.urlretrieve(welcome_url)
+# Define the welcome message template image URL
+TEMPLATE_IMAGE_URL = "https://graph.org/file/b86f6ed0d2634be5def3d.jpg"
+# Define the default user profile image URL
+DEFAULT_PFP_URL = "https://graph.org/file/86f6ed0d634be5def3d.jpg"
 
-    # Open welcome image file
-    img = Image.open(welcome_file)
+# Define the font style and size for the text
+TEXT_FONT = ImageFont.truetype("arial.ttf", 50)
 
-    # Set font for name and user ID
-    name_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size=25)
-    id_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size=18)
+# Define the circle size and border color for the user profile image
+PFP_SIZE = (150, 150)
+PFP_BORDER_COLOR = (255, 255, 255)
 
-    # Set text for name and user ID
-    name_text = f"Welcome, {name}!"
-    id_text = f"User ID: {user_id}"
+# Define the welcome message text
+WELCOME_MESSAGE = "Welcome to the chat, {}!"
 
-    # Draw text on image
-    draw = ImageDraw.Draw(img)
-    draw.text((175, 70), name_text, font=name_font, fill=(0, 0, 0))
-    draw.text((175, 110), id_text, font=id_font, fill=(0, 0, 0))
+# Create a function to generate the welcome image
+def generate_welcome_image(name: str, user_id: int, pfp_url: str) -> io.BytesIO:
+    # Open the template image from the URL
+    template_image = Image.open(requests.get(TEMPLATE_IMAGE_URL, stream=True).raw)
 
-    # Download user photo and paste on image
-    try:
-        with urllib.request.urlopen(photo_url) as url:
-            user_photo = Image.open(BytesIO(url.read()))
-            user_photo = user_photo.resize((80, 80))
-            img.paste(user_photo, (60, 50))
-    except:
-        with urllib.request.urlopen("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png") as url:
-            user_photo = Image.open(BytesIO(url.read()))
-            user_photo = user_photo.resize((80, 80))
-            img.paste(user_photo, (60, 50))
+    # Create a new ImageDraw object
+    draw = ImageDraw.Draw(template_image)
 
-    # Save image
-    img.save("welcome.png")
+    # Draw the user's name in the top-left corner in large bond letters
+    draw.text((100, 80), name.upper(), font=TEXT_FONT, fill=(255, 255, 255))
 
-    # Remove welcome image file
-    os.remove(welcome_file)
+    # Draw the "Welcome to the chat" text below the name in small itely letters
+    draw.text((100, 200), WELCOME_MESSAGE.format(name), font=TEXT_FONT, fill=(255, 255, 255))
 
-# Function to handle new member joining group
+    # Open the user's profile image from the URL or the default image if no image is provided
+    if pfp_url:
+        pfp_image = Image.open(requests.get(pfp_url, stream=True).raw).convert("RGB")
+    else:
+        pfp_image = Image.open(requests.get(DEFAULT_PFP_URL, stream=True).raw).convert("RGB")
+
+    # Resize the profile image to a circle shape and add a border
+    pfp_image = pfp_image.resize(PFP_SIZE)
+    pfp_mask = Image.new("L", PFP_SIZE, 0)
+    ImageDraw.Draw(pfp_mask).ellipse((0, 0) + PFP_SIZE, fill=255)
+    pfp_image.putalpha(pfp_mask)
+    pfp_image_border = Image.new("RGBA", PFP_SIZE, PFP_BORDER_COLOR + (0,))
+    ImageDraw.Draw(pfp_image_border).ellipse((0, 0) + PFP_SIZE, outline=PFP_BORDER_COLOR, width=5)
+    pfp_image_border.alpha_composite(pfp_image)
+
+    # Paste the profile image and user ID on the right side of the template image
+    template_image.paste(pfp_image_border, (960, 240))
+    draw.text((1050, 420), f"ID: {user_id}", font=TEXT_FONT, fill=(255, 255, 255))
+
+    # Convert the image to bytes and return the result
+    result = io.BytesIO()
+    template_image.save(result, format="JPEG")
+    result.seek(0)
+    return result
+
+# Define a function to handle new members joining a chat
 @app.on_message(filters.group & filters.new_chat_members)
-async def welcome(bot, message):
-    # Loop through new members
+async def handle_new_chat_members(client: Client, message: Message):
+    # Iterate over the new members in the message
     for member in message.new_chat_members:
-        # Get user details
-        name = member.first_name
-        if member.last_name:
-            name += f" {member.last_name}"
-        user_id = member.id
-        photo_url = member.photo.big_file_id if member.photo else None
+    # Get the member's name, ID, and profile image URL (if available)
+    name = member.first_name + " " + member.last_name if member.last_name else member.first_name
+    user_id = member.id
+    pfp_url = None
+    if member.photo:
+        pfp_url = member.photo.big_file_id
 
-        # Create welcome image
-        create_welcome_image(name, photo_url, user_id)
+    # Generate the welcome image
+    image_bytes = generate_welcome_image(name, user_id, pfp_url)
 
-        # Send image and message
-        await bot.send_photo(
-            chat_id=message.chat.id,
-            photo="welcome.png",
-            caption=f"Hello @{member.username}! Welcome to the group.",
-        )
+    # Reply to the new member with the welcome message and image
+    await message.reply_photo(image_bytes, caption=WELCOME_MESSAGE.format(f"@{member.username}" if member.username else name))
 
-        # Delete image file
-        os.remove("welcome.png")
-        
-@app.on_message(filters.new_chat_members)
-def handle_new_chat_members(client, message):
-    welcome(client, message)
+# Define a function to handle the "/start" command in private messages
+@app.on_message(filters.private & filters.command("start"))
+async def handle_start_command(client: Client, message: Message):
+# Reply to the user with a welcome message
+await message.reply_text("Hi there! I'm a bot that welcomes new members to groups.")
 
-@app.on_message(filters.command('start'))
-def start(client, message):
-    client.send_message(chat_id=message.chat.id, text="Hello! I'm a welcome bot.")
-    
-# Start bot
+# Run the bot
 app.run()
