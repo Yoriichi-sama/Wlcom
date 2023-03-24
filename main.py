@@ -28,7 +28,7 @@ PFP_BORDER_COLOR = (255, 255, 255)
 WELCOME_MESSAGE = "Welcome to the chat, {}!"
 
 # Create a function to generate the welcome image
-def generate_welcome_image(name: str, user_id: int, pfp_url: str) -> io.BytesIO:
+async def generate_welcome_image(name: str, user_id: int, pfp_url: str) -> io.BytesIO:
     # Open the template image from the URL
     template_image = Image.open(requests.get(TEMPLATE_IMAGE_URL, stream=True).raw)
 
@@ -42,11 +42,14 @@ def generate_welcome_image(name: str, user_id: int, pfp_url: str) -> io.BytesIO:
     draw.text((100, 200), WELCOME_MESSAGE.format(name), font=TEXT_FONT, fill=(255, 255, 255))
 
     # Get the user's profile picture URL
-        profile_photos = await client.get_profile_photos(user_id)
-        if profile_photos.total_count > 0:
-            pfp_url = await client.download_media(profile_photos.photos[-1].file_id)
+    if pfp_url:
+        response = requests.get(pfp_url)
+        if response.status_code == 200:
+            pfp_image = Image.open(io.BytesIO(response.content))
         else:
-            pfp_url = None
+            pfp_image = Image.open(requests.get(DEFAULT_PFP_URL, stream=True).raw)
+    else:
+        pfp_image = Image.open(requests.get(DEFAULT_PFP_URL, stream=True).raw)
 
     # Resize the profile image to a circle shape and add a border
     pfp_image = pfp_image.resize(PFP_SIZE)
