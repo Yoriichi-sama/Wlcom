@@ -18,7 +18,7 @@ TEMPLATE_IMAGE_URL = "https://graph.org/file/b86f6ed0d2634be5def3d.jpg"
 DEFAULT_PFP_URL = "https://graph.org/file/86f6ed0d634be5def3d.jpg"
 
 # Define the font style and size for the text
-TEXT_FONT = ImageFont.truetype("arial.ttf", 50)
+TEXT_FONT = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", 50)
 
 # Define the circle size and border color for the user profile image
 PFP_SIZE = (150, 150)
