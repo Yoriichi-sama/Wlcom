@@ -88,8 +88,8 @@ async def handle_new_chat_members(client: Client, message: Message):
 # Define a function to handle the "/start" command in private messages
 @app.on_message(filters.private & filters.command("start"))
 async def handle_start_command(client: Client, message: Message):
-# Reply to the user with a welcome message
-await message.reply_text("Hi there! I'm a bot that welcomes new members to groups.")
+    # Reply to the user with a welcome message
+    await message.reply_text("Hi there! I'm a bot that welcomes new members to groups.")
 
 # Run the bot
 app.run()
