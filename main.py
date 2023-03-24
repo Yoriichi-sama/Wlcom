@@ -42,8 +42,11 @@ def generate_welcome_image(name: str, user_id: int, pfp_url: str) -> io.BytesIO:
     draw.text((100, 200), WELCOME_MESSAGE.format(name), font=TEXT_FONT, fill=(255, 255, 255))
 
     # Open the user's profile image from the URL or the default image if no image is provided
-    if pfp_url:
-        pfp_image = Image.open(requests.get(pfp_url, stream=True).raw).convert("RGB")
+if pfp_url:
+    print("pfp_url:", pfp_url)
+    pfp_image = Image.open(requests.get(pfp_url, stream=True).raw).convert("RGB")
+
+
     else:
         pfp_image = Image.open(requests.get(DEFAULT_PFP_URL, stream=True).raw).convert("RGB")
 
