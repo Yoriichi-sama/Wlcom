@@ -13,7 +13,7 @@ app = Client(
 )
 
 # Define the welcome message template image URL
-TEMPLATE_IMAGE_URL = "https://i.postimg.cc/FRVGV8rP/Screenshot-1.png"
+TEMPLATE_IMAGE_URL = "https://cdn.pixabay.com/photo/2023/03/22/10/11/lake-7869102_960_720.jpg"
 # Define the default user profile image URL
 DEFAULT_PFP_URL = "https://graph.org/file/86f6ed0d634be5def3d.jpg"
 
