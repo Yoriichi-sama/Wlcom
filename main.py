@@ -41,12 +41,12 @@ def generate_welcome_image(name: str, user_id: int, pfp_url: str) -> io.BytesIO:
     # Draw the "Welcome to the chat" text below the name in small itely letters
     draw.text((100, 200), WELCOME_MESSAGE.format(name), font=TEXT_FONT, fill=(255, 255, 255))
 
-    # Open the user's profile image from the URL or the default image if no image is provided
-    if pfp_url:
-        print("pfp_url:", pfp_url)
-        pfp_image = Image.open(requests.get(pfp_url, stream=True).raw).convert("RGB")
-    else:
-        pfp_image = Image.open(requests.get(DEFAULT_PFP_URL, stream=True).raw).convert("RGB")
+    # Get the user's profile picture URL
+        profile_photos = await client.get_profile_photos(user_id)
+        if profile_photos.total_count > 0:
+            pfp_url = await client.download_media(profile_photos.photos[-1].file_id)
+        else:
+            pfp_url = None
 
     # Resize the profile image to a circle shape and add a border
     pfp_image = pfp_image.resize(PFP_SIZE)
