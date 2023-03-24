@@ -70,7 +70,7 @@ def generate_welcome_image(name: str, user_id: int, pfp_url: str) -> io.BytesIO:
 @app.on_message(filters.group & filters.new_chat_members)
 async def handle_new_chat_members(client: Client, message: Message):
     # Iterate over the new members in the message
-    for member in message.new_chat_members:
+for member in message.new_chat_members:
     # Get the member's name, ID, and profile image URL (if available)
     name = member.first_name + " " + member.last_name if member.last_name else member.first_name
     user_id = member.id
