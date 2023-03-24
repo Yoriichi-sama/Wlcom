@@ -45,10 +45,9 @@ def generate_welcome_image(name: str, user_id: int, pfp_url: str) -> io.BytesIO:
 if pfp_url:
     print("pfp_url:", pfp_url)
     pfp_image = Image.open(requests.get(pfp_url, stream=True).raw).convert("RGB")
+else:
+    pfp_image = Image.open(requests.get(DEFAULT_PFP_URL, stream=True).raw).convert("RGB")
 
-
-    else:
-        pfp_image = Image.open(requests.get(DEFAULT_PFP_URL, stream=True).raw).convert("RGB")
 
     # Resize the profile image to a circle shape and add a border
     pfp_image = pfp_image.resize(PFP_SIZE)
