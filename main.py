@@ -15,7 +15,7 @@ app = Client(
 # Define the welcome message template image URL
 TEMPLATE_IMAGE_URL = "https://cdn.pixabay.com/photo/2023/03/22/10/11/lake-7869102_960_720.jpg"
 # Define the default user profile image URL
-DEFAULT_PFP_URL = "https://graph.org/file/86f6ed0d634be5def3d.jpg"
+DEFAULT_PFP_URL = "https://cdn.pixabay.com/photo/2023/03/22/10/11/lake-7869102_960_720.jpg"
 
 # Define the font style and size for the text
 TEXT_FONT = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", 50)
