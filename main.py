@@ -48,23 +48,21 @@ async def new_member_handler(client, message):
     font = ImageFont.truetype("/home/gokuinstu2/Wlcom/font.otf", 24)
     draw = ImageDraw.Draw(image)
     text = user_first_name[:20] if len(user_first_name) > 20 else user_first_name
-    draw.text((100, 170), user_text, font=font, fill=(0, 0, 0))
+    draw.text((100, 120), text, font=font, fill=(0, 0, 0))
 
-
-   # Add user name and ID/username to the left half of the image with font size 14
-font = ImageFont.truetype("/home/gokuinstu2/Wlcom/font.otf", 14)
-if user_name:
-    user_text = f"{user_name}\n(ID: {user_id})"
-else:
-    user_text = f"ID: {user_id}"
-draw.text((100, 170), user_text, font=font, fill=(255, 255, 255))
-draw.text((100, 130), text, font=font, fill=(255, 255, 255))
+    # Add user name and ID/username to the left half of the image with font size 14
+    font = ImageFont.truetype("/home/gokuinstu2/Wlcom/font.otf", 14)
+    if user_name:
+        user_text = f"{user_name}\n(ID: {user_id})"
+    else:
+        user_text = f"ID: {user_id}"
+    draw.text((100, 170), user_text, font=font, fill=(255, 255, 255))
 
     # Save image to a byte stream and send as photo to the group
-with io.BytesIO() as bio:
-    image.save(bio, "PNG")
-    bio.seek(0)
-    await client.send_photo(chat_id=message.chat.id, photo=bio)
+    with io.BytesIO() as bio:
+        image.save(bio, "PNG")
+        bio.seek(0)
+        await client.send_photo(chat_id=message.chat.id, photo=bio)
 
 # Start the bot
 bot.run()
