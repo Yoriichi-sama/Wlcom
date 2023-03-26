@@ -37,7 +37,7 @@ async def new_member_handler(client, message):
     draw.ellipse((0, 0) + photo.size, fill=255)
 
     # Paste user profile picture on the right side of the image with the circular mask
-    image.paste(photo, (500, 50), mask=mask)
+    image.paste(photo, (500, 100), mask=mask)
 
     # Add user name to the left half of the image with font size 24 and text limit of 20
     font = ImageFont.truetype("/home/gokuinstu2/Wlcom/font.otf", 24)
