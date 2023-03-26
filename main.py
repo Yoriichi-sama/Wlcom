@@ -19,21 +19,32 @@ PROFILE_POSITION = (400, 50)
 
 # Define the function that generates the welcome image
 def generate_welcome_image(user_profile_photo):
-    # Load the user profile picture and resize it to the desired size
-    profile_photo = user_profile_photo.download_as_bytearray()
-    profile_image = Image.open(io.BytesIO(profile_photo)).resize((PROFILE_SIZE, PROFILE_SIZE), Image.ANTIALIAS)
+    # Load background image
+    background_url = 'https://graph.org/file/b86f6ed0d2634be5def3d.jpg'
+    background_image = requests.get(background_url).content
+    background = Image.open(io.BytesIO(background_image))
 
-    # Create a new image with the desired size and background color
-    welcome_image = Image.new('RGB', IMAGE_SIZE, (255, 255, 255))
+    # Load user's profile photo
+    file = user_profile_photo.get_file()
+    profile_photo_url = file.file_path
+    profile_photo_data = requests.get(profile_photo_url).content
+    profile_photo = Image.open(io.BytesIO(profile_photo_data))
 
-    # Paste the profile picture onto the welcome image in a circular shape
-    mask = Image.new('L', profile_image.size, 0)
+    # Resize and crop profile photo to circle
+    profile_photo = profile_photo.resize((150, 150)).convert('RGBA')
+    mask = Image.new('L', profile_photo.size, 0)
     draw = ImageDraw.Draw(mask)
-    draw.ellipse((0, 0, PROFILE_SIZE, PROFILE_SIZE), fill=255)
-    profile_image.putalpha(mask)
-    welcome_image.paste(profile_image, PROFILE_POSITION, profile_image)
+    draw.ellipse((0, 0) + profile_photo.size, fill=255)
+    profile_photo = Image.composite(profile_photo, Image.new('RGBA', profile_photo.size, (0, 0, 0, 0)), mask)
+    profile_photo = profile_photo.crop((0, 0, 150, 150))
 
-    return welcome_image
+    # Combine background and profile photo
+    background.paste(profile_photo, (800, 300), profile_photo)
+    output = io.BytesIO()
+    background.save(output, format='PNG')
+    output.seek(0)
+    return output
+
 
 
 # Define the callback function for the "/start" command
