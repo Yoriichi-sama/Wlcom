@@ -29,7 +29,7 @@ async def new_member_handler(client, message):
     photo = Image.open(io.BytesIO(photo_bytes)).resize((200, 200))
 
     # Create new image with size 700x300 and white background
-    background = Image.open('background.jpg').resize((700, 300))
+    background = Image.open('/home/gokuinstu2/Wlcom/gettyimages-1127239871-640x640.jpg').resize((700, 300))
     image = Image.new('RGB', (700, 300))
     image.paste(background, (0, 0))
 
