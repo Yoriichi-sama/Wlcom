@@ -37,8 +37,8 @@ async def new_member_handler(client, message):
     photo = Image.open(io.BytesIO(photo_bytes)).resize((200, 200))
 
     # Create new image with size 700x300 and white background
-    background = Image.open('/home/gokuinstu2/Wlcom/gettyimages-1127239871-640x640.jpg').resize((700, 300))
-    image = Image.new('RGB', (700, 300))
+    background = Image.open('/home/gokuinstu2/Wlcom/gettyimages-1127239871-640x640.jpg').resize((500, 300))
+    image = Image.new('RGB', (500, 300))
     image.paste(background, (0, 0))
 
     # Create circular mask
@@ -68,6 +68,7 @@ async def new_member_handler(client, message):
     font = ImageFont.truetype("/home/gokuinstu2/Wlcom/Demoarchimotov01Thin-K7DPy.otf", 14)
     if user_name:
         user_text = f"{user_name}"
+        
     user_text = f"{user_text} [Id: {user_id}]"
     draw.text((500, 260), user_text, font=font, fill=(255, 255, 255))
 
