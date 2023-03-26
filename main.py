@@ -22,6 +22,9 @@ async def new_member_handler(client, message):
     user_name = user.username
     user_pic = user.photo.big_file_id
     user_first_name = user.first_name
+    
+    # Initialize user_text to an empty string
+    user_text = ""
 
     # Load user profile picture and resize to 200x200
     photo_bytes = await client.download_media(user_pic, file_name='process.png', in_memory=True)
@@ -32,7 +35,6 @@ async def new_member_handler(client, message):
     background = Image.open('/home/gokuinstu2/Wlcom/gettyimages-1127239871-640x640.jpg').resize((700, 300))
     image = Image.new('RGB', (700, 300))
     image.paste(background, (0, 0))
-
 
     # Create circular mask
     mask = Image.new('L', photo.size, 0)
@@ -46,12 +48,15 @@ async def new_member_handler(client, message):
     font = ImageFont.truetype("/home/gokuinstu2/Wlcom/font.otf", 24)
     draw = ImageDraw.Draw(image)
     text = user_first_name[:20] if len(user_first_name) > 20 else user_first_name
-    draw.text((100, 170), user_text, font=font, fill=(255, 255, 255))  # white text
+    draw.text((100, 120), text, font=font, fill=(0, 0, 0))
 
     # Add user name and ID/username to the left half of the image with font size 14
-    font = ImageFont.truetype("font.otf", 14)
-    user_text = f"{user_name}\n(ID: {user_id})" if user_name else f"ID: {user_id}"
-    draw.text((100, 170), user_text, font=font, fill=(0, 0, 0))
+    font = ImageFont.truetype("/home/gokuinstu2/Wlcom/font.otf", 14)
+    if user_name:
+        user_text = f"{user_name}\n(ID: {user_id})"
+    else:
+        user_text = f"ID: {user_id}"
+    draw.text((100, 170), user_text, font=font, fill=(255, 255, 255))
 
     # Save image to a byte stream and send as photo to the group
     with io.BytesIO() as bio:
