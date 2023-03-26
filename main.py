@@ -20,25 +20,33 @@ def send_welcome_message(update: Update, context: CallbackContext):
     profile_pic_bytes = BytesIO()
     profile_pic_file.download(out=profile_pic_bytes)
     
-    # Create a circular profile picture with the correct dimensions
-    profile_pic = Image.open(profile_pic_bytes)
-    profile_pic = profile_pic.convert("RGBA")
-    size = (min(profile_pic.width, profile_pic.height),) * 2  # Use the minimum dimension as the size of the square
-    mask = circle_mask(size[0])
-    profile_pic.putalpha(mask.split()[-1])
-    profile_pic.thumbnail((500, 500))
-
-    # Load the welcome image template and draw the user's profile picture
+    # Load the welcome image template
     welcome_image_url = "https://graph.org/file/b86f6ed0d2634be5def3d.jpg"
     welcome_image_bytes = BytesIO(requests.get(welcome_image_url).content)
     welcome_image = Image.open(welcome_image_bytes)
-    welcome_image.paste(profile_pic, (670, 120))
+
+    # Create a circular frame
+    frame_size = (200, 200)
+    frame = Image.new("RGBA", frame_size, (255, 255, 255, 0))
+    draw = ImageDraw.Draw(frame)
+    draw.ellipse((0, 0, frame_size[0], frame_size[1]), fill=(255, 255, 255, 255))
+
+    # Resize the profile picture to fit inside the frame
+    profile_pic = Image.open(profile_pic_bytes)
+    profile_pic.thumbnail((frame_size[0]-20, frame_size[1]-20), Image.ANTIALIAS)
+
+    # Paste the profile picture inside the frame
+    frame.paste(profile_pic, (10, 10), profile_pic)
+
+    # Paste the frame onto the welcome image
+    welcome_image.paste(frame, (670, 120), frame)
 
     # Save the final image and send it to the user
     welcome_image_bytes = BytesIO()
     welcome_image.save(welcome_image_bytes, format='JPEG')
     welcome_image_bytes.seek(0)
     context.bot.send_photo(chat_id=update.message.chat_id, photo=welcome_image_bytes, caption=f"Welcome to the group, {user.first_name}!")
+
 
 # Define a function to create a circular mask for the profile picture
 def circle_mask(size):
