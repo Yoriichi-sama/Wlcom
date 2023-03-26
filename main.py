@@ -2,8 +2,6 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineQuery, InlineQueryResultPhoto, User
 from PIL import Image, ImageDraw, ImageFont
 import io
-from Bot.plugins.help import HELP_STRINGS
-from Bot.database.sudos import SudosDatabase
 
 # Bot API credentials
 api_id = 16844842
