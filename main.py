@@ -1,17 +1,21 @@
-import telegram
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+import logging
+import io
+import requests
 from PIL import Image, ImageDraw
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
-# Define your Telegram bot token here
-BOT_TOKEN = '6145559264:AAFufTIozcyIRZPf9bRWCvky2_NhbbjWTKU'
 
-# Define the path to the font file
-FONT_PATH = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+# Set up logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Define the image size and position of the profile picture
-IMAGE_SIZE = (400, 200)
-PROFILE_SIZE = 100
-PROFILE_POSITION = (270, 50)
+
+# Define constants
+IMAGE_URL = 'https://graph.org/file/b86f6ed0d2634be5def3d.jpg'
+IMAGE_SIZE = (600, 300)
+PROFILE_SIZE = 200
+PROFILE_POSITION = (400, 50)
+
 
 # Define the function that generates the welcome image
 def generate_welcome_image(user_profile_photo):
@@ -31,21 +35,53 @@ def generate_welcome_image(user_profile_photo):
 
     return welcome_image
 
-# Define the function that sends the welcome message and image to the group
-def send_welcome_message(update, context):
-    # Get the user who joined the group and the chat ID
+
+# Define the callback function for the "/start" command
+def start(update: Update, context: CallbackContext):
+    # Send a welcome message to the user
+    update.message.reply_text('Welcome to the group!')
+
+
+# Define the callback function for new user joins
+def send_welcome_message(update: Update, context: CallbackContext):
+    # Get the new user's profile picture
     user = update.effective_user
-    chat_id = update.message.chat_id
+    user_profile_photos = user.get_profile_photos()
+    if user_profile_photos.total_count > 0:
+        user_profile_photo = user_profile_photos.photos[-1][-1]
+    else:
+        user_profile_photo = None
 
-    # Generate the welcome image and send it to the group
-    welcome_image = generate_welcome_image(user.get_profile_photos().photos[-1][-1])
-    context.bot.send_photo(chat_id=chat_id, photo=welcome_image)
+    # Generate the welcome image with the user's profile picture
+    welcome_image = generate_welcome_image(user_profile_photo)
 
-# Create the Telegram bot and register the message handler
-bot = telegram.Bot(token=BOT_TOKEN)
-updater = Updater(token=BOT_TOKEN, use_context=True)
-dispatcher = updater.dispatcher
-dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, send_welcome_message))
+    # Send the welcome image to the group chat
+    if welcome_image is not None:
+        welcome_image_bytes = io.BytesIO()
+        welcome_image.save(welcome_image_bytes, format='JPEG')
+        welcome_image_bytes.seek(0)
+        context.bot.send_photo(update.message.chat_id, photo=welcome_image_bytes)
 
-# Start the bot
-updater.start_polling()
+
+# Define the main function
+def main():
+    # Set up the Telegram bot
+    updater = Updater('6145559264:AAFufTIozcyIRZPf9bRWCvky2_NhbbjWTKU', use_context=True)
+    dispatcher = updater.dispatcher
+
+    # Add the "/start" command handler
+    dispatcher.add_handler(CommandHandler('start', start))
+
+    # Add the new user joins handler
+    dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, send_welcome_message))
+
+    # Start the bot
+    updater.start_polling()
+
+    # Run the bot until Ctrl-C is pressed
+    updater.idle()
+
+
+# Run the main function
+if __name__ == '__main__':
+    main()
