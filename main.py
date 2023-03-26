@@ -61,10 +61,10 @@ draw.text((100, 170), user_text, font=font, fill=(255, 255, 255))
 draw.text((100, 130), text, font=font, fill=(255, 255, 255))
 
     # Save image to a byte stream and send as photo to the group
-    with io.BytesIO() as bio:
-        image.save(bio, "PNG")
-        bio.seek(0)
-        await client.send_photo(chat_id=message.chat.id, photo=bio)
+with io.BytesIO() as bio:
+    image.save(bio, "PNG")
+    bio.seek(0)
+    await client.send_photo(chat_id=message.chat.id, photo=bio)
 
 # Start the bot
 bot.run()
