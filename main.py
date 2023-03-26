@@ -36,7 +36,7 @@ def create_image(update, context):
     background_image.paste(profile_picture, (550, 200), mask=mask)
     
     # Add a text message to the image
-    font = ImageFont.truetype('arial.ttf', 36)
+    font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 36)
     draw = ImageDraw.Draw(background_image)
     draw.text((50, 50), f'{user_name} has joined the group!', fill='black', font=font)
     
