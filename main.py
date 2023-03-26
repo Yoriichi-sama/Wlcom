@@ -14,6 +14,11 @@ bot = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 # Start the bot and define a handler for new users joining the group
 @bot.on_message(filters.new_chat_members)
 async def new_member_handler(client, message):
+    chat = message.chat
+    group_name = chat.title
+    text = f"Welcome to {group_name} (Member no. {message.chat.members_count})"
+    await message.reply_text(text)
+
     # Get the user who just joined the group
     user = message.new_chat_members[0]
 
