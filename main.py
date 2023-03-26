@@ -4,6 +4,10 @@ import requests
 from PIL import Image, ImageDraw
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from PIL import Image
+
+welcome_image_bytes.seek(0)
+welcome_image = Image.open(welcome_image_bytes)
 
 
 # Set up logging
