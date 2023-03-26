@@ -40,7 +40,7 @@ async def new_member_handler(client, message):
     image.paste(photo, (500, 50), mask=mask)
 
     # Add user name to the left half of the image with font size 24 and text limit of 20
-    font = ImageFont.truetype("font.otf", 24)
+    font = ImageFont.truetype("/home/gokuinstu2/Wlcom/font.otf", 24)
     draw = ImageDraw.Draw(image)
     text = user_first_name[:20] if len(user_first_name) > 20 else user_first_name
     draw.text((100, 120), text, font=font, fill=(0, 0, 0))
