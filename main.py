@@ -34,13 +34,13 @@ def send_welcome_message(update: Update, context: CallbackContext):
     size = (profile_pic.width, profile_pic.height)
     mask = circle_mask(size[0])
     profile_pic.putalpha(mask)
-    profile_pic.thumbnail((100, 100))
+    profile_pic.thumbnail((500, 500))
 
     # Load the welcome image template and draw the user's profile picture
     welcome_image_url = "https://graph.org/file/b86f6ed0d2634be5def3d.jpg"
     welcome_image_bytes = BytesIO(requests.get(welcome_image_url).content)
     welcome_image = Image.open(welcome_image_bytes)
-    welcome_image.paste(profile_pic, (570, 360))
+    welcome_image.paste(profile_pic, (700, 500))
 
     # Save the final image and send it to the user
     welcome_image_bytes = BytesIO()
