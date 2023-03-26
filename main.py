@@ -3,7 +3,7 @@ import os
 from io import BytesIO
 
 import requests
-from PIL import Image
+from PIL import Image, ImageDraw
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from telegram import Update
 
