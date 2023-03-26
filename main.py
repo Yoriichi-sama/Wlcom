@@ -29,7 +29,10 @@ async def new_member_handler(client, message):
     photo = Image.open(io.BytesIO(photo_bytes)).resize((200, 200))
 
     # Create new image with size 700x300 and white background
-    image = Image.new('RGB', (700, 300), (255, 255, 255))
+    background = Image.open('background.jpg').resize((700, 300))
+    image = Image.new('RGB', (700, 300))
+    image.paste(background, (0, 0))
+
 
     # Create circular mask
     mask = Image.new('L', photo.size, 0)
