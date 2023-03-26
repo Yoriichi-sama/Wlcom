@@ -51,13 +51,14 @@ async def new_member_handler(client, message):
     draw.text((100, 170), user_text, font=font, fill=(0, 0, 0))
 
 
-    # Add user name and ID/username to the left half of the image with font size 14
-    font = ImageFont.truetype("/home/gokuinstu2/Wlcom/font.otf", 14)
-    if user_name:
-        user_text = f"{user_name}\n(ID: {user_id})"
-    else:
-        user_text = f"ID: {user_id}"
-    draw.text((100, 170), user_text, font=font, fill=(255, 255, 255))
+   # Add user name and ID/username to the left half of the image with font size 14
+font = ImageFont.truetype("/home/gokuinstu2/Wlcom/font.otf", 14)
+if user_name:
+    user_text = f"{user_name}\n(ID: {user_id})"
+else:
+    user_text = f"ID: {user_id}"
+draw.text((100, 170), user_text, font=font, fill=(255, 255, 255))
+draw.text((100, 130), text, font=font, fill=(255, 255, 255))
 
     # Save image to a byte stream and send as photo to the group
     with io.BytesIO() as bio:
