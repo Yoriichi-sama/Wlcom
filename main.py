@@ -17,7 +17,7 @@ def circle_mask(size):
     mask = Image.new("L", (size, size), 0)
     draw = ImageDraw.Draw(mask)
     draw.ellipse((0, 0, size, size), fill=255)
-    return mask
+    return mask.convert("RGBA")
 
 
 # Define the function that will send the welcome message and image
@@ -30,11 +30,12 @@ def send_welcome_message(update: Update, context: CallbackContext):
     
     # Create a circular profile picture with the correct dimensions
     profile_pic = Image.open(profile_pic_bytes)
-    profile_pic = profile_pic.convert("RGB")
+    profile_pic = profile_pic.convert("RGBA")
     size = (profile_pic.width, profile_pic.height)
     mask = circle_mask(size[0])
-    profile_pic.putalpha(mask)
+    profile_pic.putalpha(mask.split()[-1])
     profile_pic.thumbnail((500, 500))
+
 
     # Load the welcome image template and draw the user's profile picture
     welcome_image_url = "https://graph.org/file/b86f6ed0d2634be5def3d.jpg"
