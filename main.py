@@ -20,7 +20,7 @@ def create_image(update, context):
     file.download(file_path)
     
     # Open the background image and resize it to 800x600
-    background_image = Image.open('/Wlcom/images/Screenshot (73).png')
+    background_image = Image.open(requests.get('https://i.postimg.cc/MHz17VTg/Screenshot-73.png', stream=True).raw)
     background_image = background_image.resize((800, 600))
     
     # Open the user's profile picture and resize it to 200x200
