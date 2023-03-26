@@ -68,10 +68,12 @@ def send_welcome_message(update: Update, context: CallbackContext):
 
     # Send the welcome image to the group chat
     if welcome_image is not None:
+        welcome_image_bytes = io.BytesIO()
         welcome_image_bytes.seek(0, 0)
         welcome_image.save(welcome_image_bytes, format='JPEG')
         welcome_image_bytes.seek(0)
         context.bot.send_photo(update.message.chat_id, photo=welcome_image_bytes)
+
 
 
 # Define the main function
