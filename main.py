@@ -40,7 +40,7 @@ def send_welcome_message(update: Update, context: CallbackContext):
     welcome_image_url = "https://graph.org/file/b86f6ed0d2634be5def3d.jpg"
     welcome_image_bytes = BytesIO(requests.get(welcome_image_url).content)
     welcome_image = Image.open(welcome_image_bytes)
-    welcome_image.paste(profile_pic, (780, 180))
+    welcome_image.paste(profile_pic, (670, 120))
 
     # Save the final image and send it to the user
     welcome_image_bytes = BytesIO()
