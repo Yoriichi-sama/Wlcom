@@ -52,7 +52,7 @@ async def new_member_handler(client, message):
     
     # Add group name below the user's name
     group_name = message.chat.title
-    font = ImageFont.truetype("/home/gokuinstu2/Wlcom/Demoarchimotov01Thin-K7DPy.otf", 14)
+    font = ImageFont.truetype("/home/gokuinstu2/Wlcom/font.otf", 14)
     text = f"Welcome to: {group_name[:10]}"
     draw.text((110, 160), text, font=font, fill=(255, 255, 255))
     if len(group_name) > 10:
