@@ -1,62 +1,51 @@
-import os
-import requests
-from PIL import Image, ImageDraw, ImageFont
+import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from PIL import Image, ImageDraw
 
-# Initialize the Telegram bot with your bot token
-updater = Updater(token='6145559264:AAFufTIozcyIRZPf9bRWCvky2_NhbbjWTKU', use_context=True)
-dispatcher = updater.dispatcher
+# Define your Telegram bot token here
+BOT_TOKEN = '6145559264:AAFufTIozcyIRZPf9bRWCvky2_NhbbjWTKU'
 
-# Define a function to create the image
-def create_image(update, context):
-    user_id = update.effective_user.id
-    user_name = update.effective_user.name
-    chat_id = update.effective_chat.id
-    
-    # Get the user's profile picture and save it to a file
-    file_path = f'{user_id}.jpg'
-    url = context.bot.get_user_profile_photos(user_id).photos[0][-1].file_id
-    file = context.bot.get_file(url)
-    file.download(file_path)
-    
-    # Open the background image and resize it to 800x600
-    background_image = Image.open(requests.get('https://i.postimg.cc/MHz17VTg/Screenshot-73.png', stream=True).raw)
-    background_image = background_image.resize((800, 600))
-    
-    # Open the user's profile picture and resize it to 200x200
-    profile_picture = Image.open(file_path)
-    profile_picture = profile_picture.resize((200, 200))
-    
-    # Create a circular mask for the profile picture
-    mask = Image.new('L', (200, 200), 0)
+# Define the path to the font file
+FONT_PATH = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+
+# Define the image size and position of the profile picture
+IMAGE_SIZE = (400, 200)
+PROFILE_SIZE = 100
+PROFILE_POSITION = (270, 50)
+
+# Define the function that generates the welcome image
+def generate_welcome_image(user_profile_photo):
+    # Load the user profile picture and resize it to the desired size
+    profile_photo = user_profile_photo.download_as_bytearray()
+    profile_image = Image.open(io.BytesIO(profile_photo)).resize((PROFILE_SIZE, PROFILE_SIZE), Image.ANTIALIAS)
+
+    # Create a new image with the desired size and background color
+    welcome_image = Image.new('RGB', IMAGE_SIZE, (255, 255, 255))
+
+    # Paste the profile picture onto the welcome image in a circular shape
+    mask = Image.new('L', profile_image.size, 0)
     draw = ImageDraw.Draw(mask)
-    draw.ellipse((0, 0, 200, 200), fill=255)
-    
-    # Paste the profile picture onto the background image using the mask
-    background_image.paste(profile_picture, (550, 200), mask=mask)
-    
-    # Add a text message to the image
-    font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 36)
-    draw = ImageDraw.Draw(background_image)
-    draw.text((50, 50), f'{user_name} has joined the group!', fill='black', font=font)
-    
-    # Save the image to a file
-    image_path = f'{user_id}_image.jpg'
-    background_image.save(image_path)
-    
-    # Send the image to the group chat
-    context.bot.send_photo(chat_id=chat_id, photo=open(image_path, 'rb'))
-    
-    # Delete the user's profile picture file and image file
-    os.remove(file_path)
-    os.remove(image_path)
+    draw.ellipse((0, 0, PROFILE_SIZE, PROFILE_SIZE), fill=255)
+    profile_image.putalpha(mask)
+    welcome_image.paste(profile_image, PROFILE_POSITION, profile_image)
 
-# Define a function to handle new user joins
-def new_member(update, context):
-    create_image(update, context)
+    return welcome_image
 
-# Add a handler for new user joins
-dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, new_member))
+# Define the function that sends the welcome message and image to the group
+def send_welcome_message(update, context):
+    # Get the user who joined the group and the chat ID
+    user = update.effective_user
+    chat_id = update.message.chat_id
+
+    # Generate the welcome image and send it to the group
+    welcome_image = generate_welcome_image(user.get_profile_photos().photos[-1][-1])
+    context.bot.send_photo(chat_id=chat_id, photo=welcome_image)
+
+# Create the Telegram bot and register the message handler
+bot = telegram.Bot(token=BOT_TOKEN)
+updater = Updater(token=BOT_TOKEN, use_context=True)
+dispatcher = updater.dispatcher
+dispatcher.add_handler(MessageHandler(Filters.status_update.new_chat_members, send_welcome_message))
 
 # Start the bot
 updater.start_polling()
