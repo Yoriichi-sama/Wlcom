@@ -1,9 +1,11 @@
 import logging
+import os
 from io import BytesIO
-from PIL import Image, ImageDraw
 
-from telegram import Update, User
+import requests
+from PIL import Image
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram import Update
 
 
 # Define your bot token and logging setup
