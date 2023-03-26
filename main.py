@@ -49,6 +49,16 @@ async def new_member_handler(client, message):
     draw = ImageDraw.Draw(image)
     text = user_first_name[:20] if len(user_first_name) > 20 else user_first_name
     draw.text((110, 120), text, font=font, fill=(255, 255, 255))
+    
+    # Add group name below the user's name
+    group_name = message.chat.title
+    font = ImageFont.truetype("/home/gokuinstu2/Wlcom/Demoarchimotov01Thin-K7DPy.otf", 14)
+    text = f"Welcome to: {group_name[:10]}"
+    draw.text((110, 160), text, font=font, fill=(255, 255, 255))
+    if len(group_name) > 10:
+        text = group_name[10:20]
+        draw.text((110, 180), text, font=font, fill=(255, 255, 255))
+    
 
     # Add user name and ID/username to the left half of the image with font size 14
     font = ImageFont.truetype("/home/gokuinstu2/Wlcom/Demoarchimotov01Thin-K7DPy.otf", 14)
