@@ -13,11 +13,12 @@ BOT_TOKEN = "6145559264:AAFufTIozcyIRZPf9bRWCvky2_NhbbjWTKU"
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 # Define the function that will send the welcome message and image
-def send_welcome_message(update, context):
+def send_welcome_message(update: Update, context: CallbackContext) -> None:
     # Get the user's profile picture
     user_profile_pic = context.bot.get_user_profile_photos(update.message.from_user.id).photos[0][-1]
-    profile_pic_bytes = BytesIO(requests.get(user_profile_pic.file_path).content)
-    profile_pic = Image.open(profile_pic_bytes).convert('RGBA')
+    file = context.bot.get_file(user_profile_pic.file_id)
+    file_bytes = BytesIO(file.download_as_bytearray())
+    profile_pic = Image.open(file_bytes).convert('RGBA')
     
     # Load the welcome image template and create a transparent layer
     welcome_image_url = "https://graph.org/file/b86f6ed0d2634be5def3d.jpg"
