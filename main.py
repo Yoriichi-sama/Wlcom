@@ -14,10 +14,10 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 # Define a function to create a circular mask for the profile picture
 def circle_mask(size):
-    mask = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    mask = Image.new("L", (size, size), 0)
     draw = ImageDraw.Draw(mask)
-    draw.ellipse((0, 0, size, size), fill=(255, 255, 255, 255))
-    return mask
+    draw.ellipse((0, 0, size, size), fill=255)
+    return mask.convert("RGBA")
 
 # Define the function that will send the welcome message and image
 def send_welcome_message(update: Update, context: CallbackContext):
