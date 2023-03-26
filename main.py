@@ -66,10 +66,6 @@ def send_welcome_message(update: Update, context: CallbackContext):
     # Generate the welcome image with the user's profile picture
     welcome_image = generate_welcome_image(user_profile_photo)
 
-    with open('welcome_image.jpg', 'wb') as f:
-    f.write(welcome_image_bytes.getvalue())
-
-    
     # Send the welcome image to the group chat
     if welcome_image is not None:
         welcome_image_bytes.seek(0, 0)
