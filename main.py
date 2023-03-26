@@ -40,7 +40,14 @@ def send_welcome_message(update: Update, context: CallbackContext):
     welcome_image_bytes.seek(0)
     context.bot.send_photo(chat_id=update.message.chat_id, photo=welcome_image_bytes, caption=f"Welcome to the group, {user.first_name}!")
 
-    
+# Define a function to create a circular mask for the profile picture
+def circle_mask(size):
+    mask = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse((0, 0, size, size), fill=(255, 255, 255, 255))
+    return mask
+
+
 
 # Create the bot and add the necessary handlers
 updater = Updater(BOT_TOKEN, use_context=True)
