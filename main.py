@@ -30,7 +30,7 @@ def send_welcome_message(update: Update, context: CallbackContext):
 
     # Save the final image and send it to the user
     welcome_image_bytes = BytesIO()
-    profile_pic.save(welcome_image_bytes, format='JPEG')
+    welcome_image.convert('RGB').save(welcome_image_bytes, format='JPEG')
     welcome_image_bytes.seek(0)
     context.bot.send_photo(chat_id=update.message.chat_id, photo=welcome_image_bytes, caption=f"Welcome to the group, {user.first_name}!")
 
