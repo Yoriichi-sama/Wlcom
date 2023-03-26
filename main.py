@@ -50,10 +50,9 @@ async def new_member_handler(client, message):
     text = user_first_name[:20] if len(user_first_name) > 20 else user_first_name
     draw.text((110, 120), text, font=font, fill=(255, 255, 255))
     
-    # Add group name below the user's name
-    group_name = message.chat.title
+    # Add group name and member count below the user's name
     font = ImageFont.truetype("/home/gokuinstu2/Wlcom/font.otf", 14)
-    text = f"Welcome to : {group_name[:14]}"
+    text = f"Welcome to : {group_name[:14]} ({chat_members_count} members)"
     draw.text((110, 160), text, font=font, fill=(255, 255, 255))
     if len(group_name) > 14:
         text = group_name[14:28]
