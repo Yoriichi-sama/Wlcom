@@ -54,7 +54,7 @@ async def new_member_handler(client, message):
     font = ImageFont.truetype("/home/gokuinstu2/Wlcom/Demoarchimotov01Thin-K7DPy.otf", 14)
     if user_name:
         user_text = f"{user_name}"
-    user_text = f"{user_text} [{user_id}]"
+    user_text = f"{user_text} [Id: {user_id}]"
     draw.text((500, 260), user_text, font=font, fill=(255, 255, 255))
 
     # Save image to a byte stream and send as photo to the group
