@@ -13,13 +13,6 @@ BOT_TOKEN = "6145559264:AAFufTIozcyIRZPf9bRWCvky2_NhbbjWTKU"
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 # Define a function to create a circular mask for the profile picture
-def circle_mask(size):
-    mask = Image.new("L", (size, size), 0)
-    draw = ImageDraw.Draw(mask)
-    draw.ellipse((0, 0, size, size), fill=255)
-    return mask.convert("RGBA")
-
-# Define the function that will send the welcome message and image
 def send_welcome_message(update: Update, context: CallbackContext):
     # Get the new user's profile picture
     user: User = update.effective_user
@@ -30,11 +23,10 @@ def send_welcome_message(update: Update, context: CallbackContext):
     # Create a circular profile picture with the correct dimensions
     profile_pic = Image.open(profile_pic_bytes)
     profile_pic = profile_pic.convert("RGBA")
-    size = (profile_pic.width, profile_pic.height)
+    size = (min(profile_pic.width, profile_pic.height),) * 2  # Use the minimum dimension as the size of the square
     mask = circle_mask(size[0])
     profile_pic.putalpha(mask.split()[-1])
     profile_pic.thumbnail((500, 500))
-
 
     # Load the welcome image template and draw the user's profile picture
     welcome_image_url = "https://graph.org/file/b86f6ed0d2634be5def3d.jpg"
@@ -47,6 +39,7 @@ def send_welcome_message(update: Update, context: CallbackContext):
     welcome_image.save(welcome_image_bytes, format='JPEG')
     welcome_image_bytes.seek(0)
     context.bot.send_photo(chat_id=update.message.chat_id, photo=welcome_image_bytes, caption=f"Welcome to the group, {user.first_name}!")
+
     
 
 # Create the bot and add the necessary handlers
